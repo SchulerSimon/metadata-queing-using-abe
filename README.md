@@ -36,6 +36,9 @@ Queue(
 )
 ```
 
+Originally this was designed with Blockchain in mind, so that matching happens in a decentralized way. 
+The class Smartcontract (`[~repo]/prototype/actors/smartcontract.py`) is a dummy implementation of a smartcontract that is able to do the matching completely encrypted. This could be implemented in Solidity (for the Ethereum Blockchain).
+
 #### contents:
 - ```[~repo]/prototype/``` contains a prototype to query bit wise encoded metadata from nodes (or people) in a privacy preserving matter
 - ```[~repo]/tests/``` contains tests for encoding- and decoding-speed of different ABE-Schemes

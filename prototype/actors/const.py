@@ -58,7 +58,6 @@ bit_dict = {
     "european": european,
     "north_american": north_american,
     "south_american": south_american,
-    "north_american": north_american,
     "australian": australian,
     "persian": persian,
     "arabic": arabic,
