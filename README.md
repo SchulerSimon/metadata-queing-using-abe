@@ -42,7 +42,6 @@ Queue(
 - ```[~repo]/string_encryption/``` contains a prototype for encoding strings with ECC (Elliptic Curve Cryptography). This could be very handy once the prototype is used in a more complex manner
 
 #### requirements:
-- ubuntu 18.04 LTS
 - python3
 - charm-crypto
 
@@ -58,7 +57,7 @@ cd [~repo]/prototype/
 python3 pyrototype.py
 ```
 
-the prototype is implemented with CPabe09. Because FAME has better performance the prototype should be updated to use FAME
+*the prototype is implemented with CPabe09. Because FAME has better performance the prototype should be updated to use FAME*
 
 
 #### run string encoding with EEC
