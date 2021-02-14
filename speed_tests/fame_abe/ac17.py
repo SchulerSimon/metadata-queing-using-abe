@@ -1,4 +1,4 @@
-'''
+"""
 Shashank Agrawal, Melissa Chase
 
 | From: 'FAME: Fast Attribute-based Message Encryption'
@@ -12,7 +12,7 @@ Shashank Agrawal, Melissa Chase
 
 :Authors:         Shashank Agrawal
 :Date:            05/2016
-'''
+"""
 
 from charm.toolbox.pairinggroup import PairingGroup, ZR, G1, G2, GT, pair
 from charm.toolbox.ABEnc import ABEnc
@@ -22,7 +22,6 @@ debug = False
 
 
 class AC17CPABE(ABEnc):
-
     def __init__(self, group_obj, assump_size, verbose=False):
         ABEnc.__init__(self)
         self.group = group_obj
@@ -30,12 +29,12 @@ class AC17CPABE(ABEnc):
         self.util = MSP(self.group, verbose)
 
     def setup(self):
-        '''
+        """
         Generates public key and master secret key.
-        '''
+        """
 
         if debug:
-            print('\nSetup algorithm:\n')
+            print("\nSetup algorithm:\n")
 
         # generate two instances of the k-linear assumption
         A = []
@@ -72,20 +71,20 @@ class AC17CPABE(ABEnc):
             e_gh_kA.append(e_gh ** (k[i] * A[i] + k[self.assump_size]))
 
         # the public key
-        pk = {'h_A': h_A, 'e_gh_kA': e_gh_kA}
+        pk = {"h_A": h_A, "e_gh_kA": e_gh_kA}
 
         # the master secret key
-        msk = {'g': g, 'h': h, 'g_k': g_k, 'A': A, 'B': B}
+        msk = {"g": g, "h": h, "g_k": g_k, "A": A, "B": B}
 
         return pk, msk
 
     def keygen(self, pk, msk, attr_list):
-        '''
+        """
         Generate a key for a list of attributes.
-        '''
+        """
 
         if debug:
-            print('\nKey generation algorithm:\n')
+            print("\nKey generation algorithm:\n")
 
         # pick randomness
         r = []
@@ -100,18 +99,18 @@ class AC17CPABE(ABEnc):
         # first compute just Br as it will be used later too
         Br = []
         for i in range(self.assump_size):
-            Br.append(msk['B'][i] * r[i])
+            Br.append(msk["B"][i] * r[i])
         Br.append(sum)
 
         # now compute [Br]_2
         K_0 = []
         for i in range(self.assump_size + 1):
-            K_0.append(msk['h'] ** Br[i])
+            K_0.append(msk["h"] ** Br[i])
 
         # compute [W_1 Br]_1, ...
         K = {}
-        A = msk['A']
-        g = msk['g']
+        A = msk["A"]
+        g = msk["g"]
         for attr in attr_list:
             key = []
             sigma_attr = self.group.random(ZR)
@@ -120,36 +119,35 @@ class AC17CPABE(ABEnc):
                 a_t = A[t]
                 for l in range(self.assump_size + 1):
                     input_for_hash = attr + str(l) + str(t)
-                    prod *= (self.group.hash(input_for_hash, G1)
-                             ** (Br[l] / a_t))
-                prod *= (g ** (sigma_attr / a_t))
+                    prod *= self.group.hash(input_for_hash, G1) ** (Br[l] / a_t)
+                prod *= g ** (sigma_attr / a_t)
                 key.append(prod)
             key.append(g ** (-sigma_attr))
             K[attr] = key
 
         # compute [k + VBr]_1
         Kp = []
-        g_k = msk['g_k']
+        g_k = msk["g_k"]
         sigma = self.group.random(ZR)
         for t in range(self.assump_size):
             prod = g_k[t]
             a_t = A[t]
             for l in range(self.assump_size + 1):
-                input_for_hash = '01' + str(l) + str(t)
-                prod *= (self.group.hash(input_for_hash, G1) ** (Br[l] / a_t))
-            prod *= (g ** (sigma / a_t))
+                input_for_hash = "01" + str(l) + str(t)
+                prod *= self.group.hash(input_for_hash, G1) ** (Br[l] / a_t)
+            prod *= g ** (sigma / a_t)
             Kp.append(prod)
         Kp.append(g_k[self.assump_size] * (g ** (-sigma)))
 
-        return {'attr_list': attr_list, 'K_0': K_0, 'K': K, 'Kp': Kp}
+        return {"attr_list": attr_list, "K_0": K_0, "K": K, "Kp": Kp}
 
     def encrypt(self, pk, msg, policy_str):
-        '''
+        """
         Encrypt a message msg under a policy string.
-        '''
+        """
 
         if debug:
-            print('\nEncryption algorithm:\n')
+            print("\nEncryption algorithm:\n")
 
         policy = self.util.createPolicy(policy_str)
         mono_span_prog = self.util.convert_policy_to_msp(policy)
@@ -165,7 +163,7 @@ class AC17CPABE(ABEnc):
 
         # compute the [As]_2 term
         C_0 = []
-        h_A = pk['h_A']
+        h_A = pk["h_A"]
         for i in range(self.assump_size):
             C_0.append(h_A[i] ** s[i])
         C_0.append(h_A[self.assump_size] ** sum)
@@ -176,7 +174,7 @@ class AC17CPABE(ABEnc):
         hash_table = []
         for j in range(num_cols):
             x = []
-            input_for_hash1 = '0' + str(j + 1)
+            input_for_hash1 = "0" + str(j + 1)
             for l in range(self.assump_size + 1):
                 y = []
                 input_for_hash2 = input_for_hash1 + str(l)
@@ -191,8 +189,7 @@ class AC17CPABE(ABEnc):
         C = {}
         for attr, row in mono_span_prog.items():
             ct = []
-            attr_stripped = self.util.strip_index(
-                attr)  # no need, re-use not allowed
+            attr_stripped = self.util.strip_index(attr)  # no need, re-use not allowed
             for l in range(self.assump_size + 1):
                 prod = 1
                 cols = len(row)
@@ -201,30 +198,30 @@ class AC17CPABE(ABEnc):
                     prod1 = self.group.hash(input_for_hash, G1)
                     for j in range(cols):
                         # input_for_hash = '0' + str(j+1) + str(l) + str(t)
-                        prod1 *= (hash_table[j][l][t] ** row[j])
-                    prod *= (prod1 ** s[t])
+                        prod1 *= hash_table[j][l][t] ** row[j]
+                    prod *= prod1 ** s[t]
                 ct.append(prod)
             C[attr] = ct
 
         # compute the e(g, h)^(k^T As) . m term
         Cp = 1
         for i in range(self.assump_size):
-            Cp = Cp * (pk['e_gh_kA'][i] ** s[i])
+            Cp = Cp * (pk["e_gh_kA"][i] ** s[i])
         Cp = Cp * msg
 
-        return {'policy': policy, 'C_0': C_0, 'C': C, 'Cp': Cp}
+        return {"policy": policy, "C_0": C_0, "C": C, "Cp": Cp}
 
     def decrypt(self, pk, ctxt, key):
-        '''
+        """
         Decrypt ciphertext ctxt with key key.
-        '''
+        """
 
         if debug:
-            print('\nDecryption algorithm:\n')
+            print("\nDecryption algorithm:\n")
 
-        nodes = self.util.prune(ctxt['policy'], key['attr_list'])
+        nodes = self.util.prune(ctxt["policy"], key["attr_list"])
         if not nodes:
-            print('Policy not satisfied.')
+            print("Policy not satisfied.")
             return None
 
         prod1_GT = 1
@@ -235,12 +232,13 @@ class AC17CPABE(ABEnc):
             for node in nodes:
                 attr = node.getAttributeAndIndex()
                 attr_stripped = self.util.strip_index(
-                    attr)  # no need, re-use not allowed
+                    attr
+                )  # no need, re-use not allowed
                 # prod_H *= key['K'][attr_stripped][i] ** coeff[attr]
                 # prod_G *= ctxt['C'][attr][i] ** coeff[attr]
-                prod_H *= key['K'][attr_stripped][i]
-                prod_G *= ctxt['C'][attr][i]
-            prod1_GT *= pair(key['Kp'][i] * prod_H, ctxt['C_0'][i])
-            prod2_GT *= pair(prod_G, key['K_0'][i])
+                prod_H *= key["K"][attr_stripped][i]
+                prod_G *= ctxt["C"][attr][i]
+            prod1_GT *= pair(key["Kp"][i] * prod_H, ctxt["C_0"][i])
+            prod2_GT *= pair(prod_G, key["K_0"][i])
 
-        return ctxt['Cp'] * prod2_GT / prod1_GT
+        return ctxt["Cp"] * prod2_GT / prod1_GT

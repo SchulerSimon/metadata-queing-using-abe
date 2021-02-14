@@ -13,5 +13,6 @@ def main():
     queues = create_test_queues()
     sm.add_queues(queues)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

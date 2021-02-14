@@ -1,14 +1,13 @@
-'''
+"""
 represents an agent of any sort (eg smart contract on blockchain)
 could aswell be a trusted third party etc.
-'''
+"""
 from .patient import *
 from .queue import *
 from .const import *
 
 
-class Smartcontract():
-
+class Smartcontract:
     def __init__(self):
         self.patients = []
         self.queues = []
@@ -25,4 +24,4 @@ class Smartcontract():
         for p in self.patients:
             for q in self.queues:
                 if p.queue(q.get()):
-                    print('found:' + '-'.join(p.get_attr_list()))
+                    print("found:" + "-".join(p.get_attr_list()))

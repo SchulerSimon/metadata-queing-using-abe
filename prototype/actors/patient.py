@@ -1,6 +1,6 @@
-'''
+"""
 represents a patient
-'''
+"""
 from charm.toolbox.pairinggroup import PairingGroup, ZR, G1, G2, GT, pair
 from charm.toolbox.secretutil import SecretUtil
 from charm.toolbox.ABEnc import ABEnc
@@ -9,10 +9,9 @@ from .const import *
 from .queue import *
 
 
-class Patient():
-
+class Patient:
     def __init__(self, ethnicity, age, desease):
-        self.group = PairingGroup('SS512')
+        self.group = PairingGroup("SS512")
         self.cpabe = CPabe09(self.group)
         self.ethnicity = ethnicity
         self.age = age
@@ -20,8 +19,8 @@ class Patient():
 
     def get_age_attributes(self):
         attr_list = []
-        for n, b in enumerate('{0:07b}'.format(self.age)):
-            attr_list += [abx + str(n) if b == '1' else anbx + str(n)]
+        for n, b in enumerate("{0:07b}".format(self.age)):
+            attr_list += [abx + str(n) if b == "1" else anbx + str(n)]
         return attr_list
 
     def get_attr_list(self):
@@ -29,20 +28,23 @@ class Patient():
 
     def queue(self, queue):
         (master_secret_key, master_public_key) = self.cpabe.setup(
-            queue['g1'], queue['g2'], queue['alpha'], queue['a'])
+            queue["g1"], queue["g2"], queue["alpha"], queue["a"]
+        )
         attr_list = self.get_attr_list()
-        secret_key = self.cpabe.keygen(
-            master_public_key, master_secret_key, attr_list)
-        return (queue['msg'] == self.cpabe.decrypt(master_public_key, secret_key, queue['cipher'])) and self.ask_if_patient_wants_to_participate()
+        secret_key = self.cpabe.keygen(master_public_key, master_secret_key, attr_list)
+        return (
+            queue["msg"]
+            == self.cpabe.decrypt(master_public_key, secret_key, queue["cipher"])
+        ) and self.ask_if_patient_wants_to_participate()
 
     def ask_if_patient_wants_to_participate(self):
         return True
 
 
 def create_test_patients():
-    '''
+    """
     creates a list of patients 
-    '''
+    """
     temp = [
         Patient(asian, 22, autism),
         Patient(asian, 23, alzheimers),
@@ -66,6 +68,6 @@ def create_test_patients():
     return temp
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     p = Patient(asian, 55, cancer)
     print(p.get_attr_list())
